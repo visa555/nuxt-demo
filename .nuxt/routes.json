@@ -1,0 +1,14 @@
+[
+  {
+    "name": "home-id",
+    "path": "/home/:id?",
+    "component": "/Users/visa/sites/nuxt-demo/pages/home/_id.vue",
+    "chunkName": "pages/home/_id"
+  },
+  {
+    "name": "index",
+    "path": "/",
+    "component": "/Users/visa/sites/nuxt-demo/pages/index.vue",
+    "chunkName": "pages/index"
+  }
+]
