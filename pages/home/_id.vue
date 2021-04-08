@@ -10,6 +10,18 @@
     {{ home.guests }} guests, {{ home.bedrooms }} rooms, {{ home.beds }} beds, {{ home.bathrooms }} bath<br/>
     {{ home.description }}
     <div style="height:800px;width:800px" ref="map"></div>
+    <div v-for="review in reviews" :key="review.objectID">
+        <img :src="review.reviewer.image" alt="">
+        {{review.reviewer.name}}<br>
+        {{formatDate(review.date)}}<br>
+        <short-text :text="review.comment" :target="150"/>
+        
+    </div>
+    <img :src="user.image" alt=""><br>
+    {{user.name}}<br>
+    {{formatDate(user.joined)}}<br>
+    {{user.reviewCount}}<br>
+    {{user.description}}
     </div>
 </template>
 <script>
@@ -23,11 +35,27 @@ export default {
         this.$maps.showMap(this.$refs.map, this.home._geoloc.lat, this.home._geoloc.lng)
     },
     async asyncData({ params, $dataApi, error }){        
-        const response = await $dataApi.getHome(params.id)
-        //console.log(response)      
-        if(!response.ok) return error({ statusCode: response.status, message: response.statusText})
+        const responses= await Promise.all([
+            $dataApi.getHome(params.id),
+            $dataApi.getReviewsByHomeId(params.id),
+            $dataApi.getUserByHomeId(params.id)
+        ])
+
+        const badResponse=responses.find((response)=>!response.ok)
+        
+        if(badResponse) return error({statusCode:badResponse.status,message:badResponse.statustText})
+        
         return {
-            home: response.json,
+            home: responses[0].json,
+            reviews: responses[1].json.hits,
+            user: responses[2].json.hits[0],
+        }
+    },
+    methods:{
+        formatDate(dateStr){
+            const date=new Date(dateStr)
+            console.log(date)
+            return date.toLocaleDateString(undefined,{month:'long',year:'numeric'})
         }
     }
 }
